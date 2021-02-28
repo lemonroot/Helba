@@ -1,7 +1,19 @@
 import discord
 import os
 from discord.ext import commands
+import time
 import json
+
+forbidden = ['aura', 'balmung', 'blackRose', 'cubia', 'elk', 'gardenia', 'helba', 'kite', 'marlo', 'mia', 'mistral',
+             'moonstone', 'natsume', 'nuke usagimaru', 'orca', 'skeith', 'innis', 'magus', 'fidchell', 'gorre', 'macha',
+             'tarvos', 'corbenik', 'piros', 'rachel', 'sanjuro', 'tartarga', 'terajima ryoko', 'wiseman', 'aina',
+             'alkaid', 'antares', 'atoli', 'asta', 'azure balmung', 'azure kite', 'azure orca', 'bordeaux', 'endrance',
+             'gabi', 'gaspard', 'haseo', 'hiiragi', 'iyoten', 'kaede', 'kuhn', 'matsu', 'nala', 'negimaru', 'ovan',
+             'pi', 'phyllo', 'piros the 3rd', 'piros the 2nd', 'sakaki', 'sakubo', 'shino', 'silabus', 'sirius',
+             'sophora', 'tabby', 'taihaku', 'tri-Edge', 'yata', 'zelkova', 'aika', 'tokio', 'saika', 'albireo', 'bear',
+             'tsukasa', 'mimiru', 'bt', 'sora', 'crim', 'silver knight', 'morganna', 'subaru', 'mireille',
+             'ouka', 'rena', 'shugo', 'zefie']
+
 
 
 class Sandbox(commands.Cog):
@@ -28,7 +40,28 @@ class Sandbox(commands.Cog):
         await member.send('Nice')
 
     @commands.command(name='create')
-    async def create(self, ctx):
+    async def create(self, ctx, *, member: discord.Member = None):
+        member = member or ctx.author
+        if member == self.bot.user:
+            return
+
+        await member.send('Welcome to The World.')
+        time.sleep(2)
+        await member.send("Let's begin with your name. Reply with a name representing your character. Names can be up to"
+                          "16 characters long, and may include numbers, letters, and spaces.")
+        name_try = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+        if name_try.content.lower() in forbidden:
+            await member.send('This name is forbidden. Please try again.')
+        else:
+            with open('data/namelist.json', 'r') as file:
+                data = json.load(file)
+            if name_try.content.lower() in data["names"].__str__():
+                await member.send('Name is taken. Please try again.')
+            await member.send('This works.')
+
+
+
+"""
         new_account = {
             'owner': ctx.author.id,
             'race': 'None',
@@ -61,6 +94,7 @@ class Sandbox(commands.Cog):
             else:
                 print('both slots filled!')
         # json.read(directory)
+"""
 
 
 def setup(bot):
