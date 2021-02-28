@@ -29,28 +29,37 @@ class Sandbox(commands.Cog):
 
     @commands.command(name='create')
     async def create(self, ctx):
-        directory = ('players/' + str(ctx.author.id) + '/data.json')
+        new_account = {
+            'owner': ctx.author.id,
+            'race': 'None',
+            'job': 'None',
+            'deity': 'None',
+            'lvl': '1',
+            'exp': '0',
+            'weapon': 'None',
+            'armor': 'None',
+            'accessory': 'None'
+        }
+        directory = ('players/' + str(ctx.author.id) + '/profile1/info.json')
+
         if not os.path.exists('players/{}'.format(ctx.author.id)):
-            os.makedirs('players/{}'.format(ctx.author.id))
-            new_account = {
-                'owner': ctx.author.id,
-                'race': 'None',
-                'job': 'None',
-                'deity': 'None',
-                'skill': 'None',
-                'lvl': '1',
-                'exp': '0',
-                'weapon': 'None',
-                'armor': 'None',
-                'accessory': 'None'
-            }
+            os.makedirs('players/{}'.format(ctx.author.id) + '/profile1')
 
             with open(directory, 'w') as f:
                 json.dump(new_account, f)
 
-            print('created')
+            print('created profile 1')
         else:
-            print('exists')
+            if not os.path.exists('players/{}'.format(ctx.author.id) + '/profile2'):
+                os.makedirs('players/{}'.format(ctx.author.id) + '/profile2')
+                directory = ('players/' + str(ctx.author.id) + '/profile2/info.json')
+
+                with open(directory, 'w') as f:
+                    json.dump(new_account, f)
+                print('created profile 2')
+
+            else:
+                print('both slots filled!')
         # json.read(directory)
 
 
