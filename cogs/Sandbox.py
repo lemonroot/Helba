@@ -12,8 +12,8 @@ forbidden = ['aura', 'balmung', 'blackRose', 'cubia', 'elk', 'gardenia', 'helba'
              'pi', 'phyllo', 'piros the 3rd', 'piros the 2nd', 'sakaki', 'sakubo', 'shino', 'silabus', 'sirius',
              'sophora', 'tabby', 'taihaku', 'tri-Edge', 'yata', 'zelkova', 'aika', 'tokio', 'saika', 'albireo', 'bear',
              'tsukasa', 'mimiru', 'bt', 'sora', 'crim', 'silver knight', 'morganna', 'subaru', 'mireille',
-             'ouka', 'rena', 'shugo', 'zefie']
-
+             'ouka', 'rena', 'shugo', 'lycoris', 'zefie']
+# Please understand that I wouldn't add this without a purpose.
 
 
 class Sandbox(commands.Cog):
@@ -39,6 +39,7 @@ class Sandbox(commands.Cog):
         # me = await ctx.fetch_user_profile(ctx.author.id)
         await member.send('Nice')
 
+    # Command to create character
     @commands.command(name='create')
     async def create(self, ctx, *, member: discord.Member = None):
         member = member or ctx.author
@@ -46,18 +47,43 @@ class Sandbox(commands.Cog):
             return
 
         await member.send('Welcome to The World.')
+
         time.sleep(2)
-        await member.send("Let's begin with your name. Reply with a name representing your character. Names can be up to"
-                          "16 characters long, and may include numbers, letters, and spaces.")
+        await self._name_check(ctx)
+
+        time.sleep(2)
+        await member.send('Next step.')
+
+    # Check if name is forbidden or in use.
+    async def _name_check(self, ctx, member: discord.Member = None):
+        member = member or ctx.author
+
+        await member.send("Let's begin with your name. Reply with a name representing your character. Names can be up "
+                          "to 16 characters long, and may include numbers, letters, and spaces.")
         name_try = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
-        if name_try.content.lower() in forbidden:
-            await member.send('This name is forbidden. Please try again.')
-        else:
-            with open('data/namelist.json', 'r') as file:
-                data = json.load(file)
-            if name_try.content.lower() in data["names"].__str__():
-                await member.send('Name is taken. Please try again.')
-            await member.send('This works.')
+
+        while name_try.content.lower() in forbidden:
+            await member.send('ERROR: This name is forbidden. Please try again.')
+            name_try = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+
+        with open('data/namelist.json', 'r') as file:
+            data = json.load(file)
+        while name_try.content.lower() in data["names"].__str__():
+            await member.send('ERROR: Name is already in use. Please try again.')
+            name_try = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+        await member.send('You will be known as ' + str(name_try.content) + '. Is this acceptable? Y/N')
+        while True:
+            answer = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+            while answer.content.lower() not in ('y', 'yes', 'n', 'no'):
+                await member.send('You will be known as ' + str(name_try.content) + '. Is this name acceptable? ' 
+                                  'Please respond with yes or no.')
+            if answer.content.lower() in ('yes', 'y'):
+                await member.send('Understood. Welcome to the World, ' + str(name_try.content) + '.')
+                break
+            elif answer.content.lower() in ('no' or 'n'):
+                await self._name_check(ctx)
+
+
 
 
 
